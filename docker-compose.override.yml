@@ -1,0 +1,48 @@
+version: '3.4'
+
+services:
+    catalogdb:
+        container_name: catalogdb
+        restart: always
+        volumes:
+            - ${WEBAPP_STORAGE_HOME}/site:/data/db
+        ports:
+            - "27017:27017"
+    basketdb:
+        container_name: basketdb
+        restart: always
+        ports:
+            - "6379:6379"
+
+    mobilebazar.catalog.api:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_URLS=https://+:443;http://+:80
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=p@ssword
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+            - "CatalogDatabaseSettings:ConnectionString=mongodb://catalogdb:27017"
+        depends_on:
+            - catalogdb
+        ports:
+            - "80"
+            - "443"
+        volumes:
+            - ~/.aspnet/https:/https:ro
+            - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
+        ports:
+            - "8000:80"
+
+    mobilebazar.basket.api:
+        environment:
+            - ASPNETCORE_ENVIRONMENT=Development
+            - ASPNETCORE_Kestrel__Certificates__Default__Password=p@ssword
+            - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
+            - "ConnectionStrings:Redis=basketdb:6379"
+        depends_on:
+            - basketdb
+        volumes:
+            - ~/.aspnet/https:/https:ro
+            - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
+        ports:
+            - "8001:80"
+
