@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -14,6 +15,10 @@ using MobileBazar.Basket.API.Business.Repositories;
 using MobileBazar.Basket.API.Business.Services;
 using MobileBazar.Basket.API.DataAccess.Repositories;
 using MobileBazar.Basket.API.DataAccess.Services;
+using MobileBazar.EventBusRabbbitMq;
+using MobileBazar.EventBusRabbbitMq.Producer;
+using MobileBazar.EventBusRabbbitMq.Services;
+using RabbitMQ.Client;
 using StackExchange.Redis;
 
 namespace MobileBazar.Basket.API
@@ -38,6 +43,29 @@ namespace MobileBazar.Basket.API
                });
             services.AddScoped<IBasketContext, BasketContext>();
             services.AddScoped<IBasketBusiness, BasketBusiness>();
+            services.AddAutoMapper(typeof(Startup)); // for current assembly
+
+            services.AddSingleton<IRabbitMqConnection>(sp =>
+               {
+                   var factory = new ConnectionFactory()
+                   {
+                       HostName = Configuration["EventBus:HostName"]
+                   };
+                   
+                   if(!string.IsNullOrEmpty(Configuration["EventBus:UserName"]))
+                   {
+                       factory.UserName = Configuration["EventBus:UserName"];
+                   }
+
+                   if(!string.IsNullOrEmpty(Configuration["EventBus:Password"]))
+                   {
+                       factory.Password = Configuration["EventBus:Password"];
+                   }
+
+                   return new RabbitMqConnection(factory);
+               });
+
+            services.AddSingleton<EventBusRabbitMqProducer>();
 
             services.AddSwaggerGen(c =>
             {

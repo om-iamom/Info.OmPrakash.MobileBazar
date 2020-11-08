@@ -1,13 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.Text;
 
-namespace MobileBazar.Basket.API.Domain.Entities
+namespace MobileBazar.EventBusRabbbitMq.Events
 {
-    public class BasketCheckOut
+    public class BasketCheckOutEvent
     {
-        
+        public Guid RequestId { get; set; }
+
         public string UserName { get; set; }
         public decimal TotalPrice { get; set; }
 
@@ -26,6 +26,5 @@ namespace MobileBazar.Basket.API.Domain.Entities
         public string Expiration { get; set; }
         public string CVV { get; set; }
         public int PaymentMethod { get; set; }
-        
     }
 }

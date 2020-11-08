@@ -6,6 +6,9 @@ services:
     basketdb:
         image: redis
 
+    rabbitmq:
+        image: rabbitmq:3-management-alpine
+
     mobilebazar.catalog.api:
         image: ${DOCKER_REGISTRY-}mobilebazarcatalogapi
         build:

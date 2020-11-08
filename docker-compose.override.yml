@@ -14,6 +14,13 @@ services:
         ports:
             - "6379:6379"
 
+    rabbitmq:
+        container_name: rabbitmq
+        restart: always
+        ports:
+            - "5672:5672"
+            - "15672:15672"
+
     mobilebazar.catalog.api:
         environment:
             - ASPNETCORE_ENVIRONMENT=Development
@@ -38,8 +45,10 @@ services:
             - ASPNETCORE_Kestrel__Certificates__Default__Password=p@ssword
             - ASPNETCORE_Kestrel__Certificates__Default__Path=/https/aspnetapp.pfx
             - "ConnectionStrings:Redis=basketdb:6379"
+            - "EventBus:HostName=rabbitmq"
         depends_on:
             - basketdb
+            - rabbitmq
         volumes:
             - ~/.aspnet/https:/https:ro
             - ${HOME}/.microsoft/usersecrets/:/root/.microsoft/usersecrets
